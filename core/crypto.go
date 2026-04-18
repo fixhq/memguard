@@ -68,11 +68,11 @@ func Decrypt(ciphertext, key []byte, output []byte) (int, error) {
 	var nonce [24]byte
 	Copy(nonce[:], ciphertext[:24])
 
-	// Decrypt and return the result.
-	m, ok := secretbox.Open(nil, ciphertext[24:], &nonce, k)
+	// Decrypt directly into the given output buffer to avoid
+	// intermediate plaintext on the unprotected Go heap.
+	m, ok := secretbox.Open(output[:0], ciphertext[24:], &nonce, k)
 	if ok { // Decryption successful.
-		Move(output[:cap(output)], m) // Move plaintext to given output buffer.
-		return len(m), nil            // Return length of decrypted plaintext.
+		return len(m), nil // Return length of decrypted plaintext.
 	}
 
 	// Decryption unsuccessful. Either the key was wrong or the authentication failed.
