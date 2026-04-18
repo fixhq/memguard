@@ -4,4 +4,4 @@ about: Get help with something
 labels: question
 ---
 
-*Ask away...*
+_Ask away..._

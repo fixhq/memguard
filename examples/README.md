@@ -6,21 +6,21 @@ Packages are able to import one another. This allows us to build up modules of f
 
 ## Adding a package
 
-1. Create a directory for your program and populate it with code. Check an existing module for guidance if needed. 
+1. Create a directory for your program and populate it with code. Check an existing module for guidance if needed.
 
 2. Add test code and benchmarks.
 
-    The programs can then be run individually with
+   The programs can then be run individually with
 
-    ```bash
-    go test -v -race ./examples/module_name
-    ```
+   ```bash
+   go test -v -race ./examples/module_name
+   ```
 
-    or one after the other
+   or one after the other
 
-    ```bash
-    go test -v -race ./examples/...
-    ```
+   ```bash
+   go test -v -race ./examples/...
+   ```
 
 3. Add your program to the end of the [packages](#packages) section of this document.
 
