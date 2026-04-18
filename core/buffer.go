@@ -5,7 +5,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/awnumar/memcall"
+	"github.com/fixhq/memcall"
 )
 
 var (

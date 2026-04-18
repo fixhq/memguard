@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/awnumar/memcall"
+	"github.com/fixhq/memcall"
 )
 
 func init() {
