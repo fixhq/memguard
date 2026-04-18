@@ -114,12 +114,15 @@ func Open(e *Enclave) (*Buffer, error) {
 	// Grab a view of the key.
 	k, err := getOrCreateKey().View()
 	if err != nil {
+		b.Destroy()
 		return nil, err
 	}
 
 	// Decrypt the enclave into the buffer we created.
 	_, err = Decrypt(e.ciphertext, k.Data(), b.Data())
 	if err != nil {
+		k.Destroy()
+		b.Destroy()
 		return nil, err
 	}
 
