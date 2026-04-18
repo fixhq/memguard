@@ -121,6 +121,7 @@ func (s *Coffer) Rekey() error {
 		s.left.Data()[i] ^= hashRightCurrent[i] ^ hashRightNew[i]
 	}
 	Wipe(hashRightNew)
+	Wipe(hashRightCurrent)
 
 	return nil
 }
