@@ -33,7 +33,7 @@ func CatchSignal(f func(os.Signal), signals ...os.Signal) {
 	create.Do(func() {
 		// Start a goroutine to listen on the channels.
 		go func() {
-			var handler func(os.Signal)
+			handler := func(os.Signal) {} // no-op until real handler is set
 			for {
 				select {
 				case signal := <-listener:
