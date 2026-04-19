@@ -56,8 +56,8 @@ func Decrypt(ciphertext, key []byte, output []byte) (int, error) {
 		return 0, ErrInvalidKeyLength
 	}
 
-	// Check the capacity of the given output buffer.
-	if cap(output) < (len(ciphertext) - Overhead) {
+	// Check the length of the given output buffer.
+	if len(output) < (len(ciphertext) - Overhead) {
 		return 0, ErrBufferTooSmall
 	}
 

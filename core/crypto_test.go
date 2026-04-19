@@ -152,20 +152,18 @@ func TestEncryptDecrypt(t *testing.T) {
 	}
 
 	// Construct a buffer that has the correct capacity but a smaller length.
+	// Decrypt should reject based on len, not cap.
 	out = make([]byte, len(x)-Overhead)
 	smallOut := out[:2]
 	if len(smallOut) != 2 || cap(smallOut) != len(x)-Overhead {
 		t.Error("invalid construction for test")
 	}
 	length, err = Decrypt(x, k, smallOut)
-	if err != nil {
-		t.Error("unexpected error:", err)
+	if err != ErrBufferTooSmall {
+		t.Error("expected ErrBufferTooSmall; got", err)
 	}
-	if length != len(x)-Overhead {
-		t.Error("unexpected length; got", length)
-	}
-	if !bytes.Equal(m, smallOut[:len(x)-Overhead]) {
-		t.Error("decrypted plaintext does not match original")
+	if length != 0 {
+		t.Error("expected zero length; got", length)
 	}
 
 	// Generate an incorrect key.
