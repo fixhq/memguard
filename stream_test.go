@@ -11,6 +11,8 @@ import (
 )
 
 func write(t *testing.T, s *Stream, b []byte) {
+	orig := make([]byte, len(b))
+	copy(orig, b)
 	n, err := s.Write(b)
 	if err != nil {
 		t.Error("write should always succeed", err)
@@ -18,8 +20,8 @@ func write(t *testing.T, s *Stream, b []byte) {
 	if n != len(b) {
 		t.Error("not all data was written")
 	}
-	if !bytes.Equal(b, make([]byte, len(b))) {
-		t.Error("buffer not wiped")
+	if !bytes.Equal(b, orig) {
+		t.Error("buffer was modified by Write")
 	}
 }
 
@@ -120,7 +122,7 @@ func TestStreamReadWrite(t *testing.T) {
 	read(t, s, ref[:4], nil)
 	read(t, s, ref[4:8], nil)
 	read(t, s, ref[8:], nil)
-	read(t, s, make([]byte, 16), nil)
+	read(t, s, ref, nil)
 	read(t, s, nil, io.EOF)
 
 	// Test reading after purging the session

@@ -67,11 +67,15 @@ func (s *Stream) Write(data []byte) (int, error) {
 	defer s.Unlock()
 
 	for i := 0; i < len(data); i += c {
+		var chunk []byte
 		if i+c > len(data) {
-			s.join(NewEnclave(data[len(data)-(len(data)%c):]))
+			chunk = make([]byte, len(data)%c)
+			copy(chunk, data[len(data)-(len(data)%c):])
 		} else {
-			s.join(NewEnclave(data[i : i+c]))
+			chunk = make([]byte, c)
+			copy(chunk, data[i:i+c])
 		}
+		s.join(NewEnclave(chunk))
 	}
 	return len(data), nil
 }
