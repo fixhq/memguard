@@ -22,6 +22,7 @@ type Coffer struct {
 	right *Buffer
 
 	rand *Buffer
+	done chan struct{}
 }
 
 // NewCoffer is a raw constructor for the *Coffer object.
@@ -31,14 +32,21 @@ func NewCoffer() *Coffer {
 	s.right, _ = NewBuffer(32)
 	s.rand, _ = NewBuffer(32)
 
+	s.done = make(chan struct{})
 	s.Init()
 
 	go func(s *Coffer) {
 		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
 
-		for range ticker.C {
-			if err := s.Rekey(); err != nil {
-				break
+		for {
+			select {
+			case <-s.done:
+				return
+			case <-ticker.C:
+				if err := s.Rekey(); err != nil {
+					return
+				}
 			}
 		}
 	}(s)
@@ -132,6 +140,16 @@ Destroy wipes and cleans up all memory related to a Coffer object. Once this met
 func (s *Coffer) Destroy() error {
 	s.Lock()
 	defer s.Unlock()
+
+	// Signal the re-key goroutine to stop.
+	if s.done != nil {
+		select {
+		case <-s.done:
+			// Already closed.
+		default:
+			close(s.done)
+		}
+	}
 
 	err1 := s.left.destroy()
 	if err1 == nil {
