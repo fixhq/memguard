@@ -900,11 +900,14 @@ func TestString(t *testing.T) {
 	b := NewBufferRandom(32)
 	b.Melt()
 	s := b.String()
-	for i := range b.Bytes() {
-		b.Bytes()[i] = 'x'
-		if string(b.Bytes()) != s {
-			t.Error("string does not map same memory")
-		}
+	if s != string(b.Bytes()) {
+		t.Error("string content does not match buffer")
+	}
+	// Verify string is a copy, not aliased to mlock'd memory.
+	orig := s
+	b.Bytes()[0] ^= 0xff
+	if s != orig {
+		t.Error("string should be an independent copy")
 	}
 	b.Destroy()
 	s = b.String()

@@ -380,8 +380,7 @@ func (b *LockedBuffer) Reader() *bytes.Reader {
 String returns a string representation of the protected region of memory.
 */
 func (b *LockedBuffer) String() string {
-	slice := b.Bytes()
-	return *(*string)(unsafe.Pointer(&slice))
+	return string(b.Bytes())
 }
 
 /*
