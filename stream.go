@@ -9,13 +9,10 @@ import (
 	"github.com/awnumar/memguard/core"
 )
 
-var (
-	// StreamChunkSize is the maximum amount of data that is locked into memory at a time.
-	// If you get error allocating memory, increase your system's mlock limits.
-	// Use 'ulimit -l' to see mlock limit on unix systems.
-	StreamChunkSize = c
-	c               = os.Getpagesize() * 4
-)
+// StreamChunkSize is the maximum amount of data that is locked into memory at a time.
+// If you get error allocating memory, increase your system's mlock limits.
+// Use 'ulimit -l' to see mlock limit on unix systems.
+var StreamChunkSize = os.Getpagesize() * 4
 
 type queue struct {
 	*list.List
@@ -66,14 +63,14 @@ func (s *Stream) Write(data []byte) (int, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	for i := 0; i < len(data); i += c {
+	for i := 0; i < len(data); i += StreamChunkSize {
 		var chunk []byte
-		if i+c > len(data) {
-			chunk = make([]byte, len(data)%c)
-			copy(chunk, data[len(data)-(len(data)%c):])
+		if i+StreamChunkSize > len(data) {
+			chunk = make([]byte, len(data)%StreamChunkSize)
+			copy(chunk, data[len(data)-(len(data)%StreamChunkSize):])
 		} else {
-			chunk = make([]byte, c)
-			copy(chunk, data[i:i+c])
+			chunk = make([]byte, StreamChunkSize)
+			copy(chunk, data[i:i+StreamChunkSize])
 		}
 		s.join(NewEnclave(chunk))
 	}
