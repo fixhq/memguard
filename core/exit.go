@@ -39,16 +39,17 @@ func Purge() {
 				}
 				// buffer destroy failed; wipe instead
 				b.Lock()
-				defer b.Unlock()
 				if !b.mutable {
 					if err := memcall.Protect(b.inner, memcall.ReadWrite()); err != nil {
 						// couldn't change it to mutable; we can't wipe it! (could this happen?)
 						// not sure what we can do at this point, just warn and move on
+						b.Unlock()
 						fmt.Fprintf(os.Stderr, "!WARNING: failed to wipe immutable data at address %p", &b.data)
 						continue // wipe in subprocess?
 					}
 				}
 				Wipe(b.data)
+				b.Unlock()
 			}
 		}
 	}()
