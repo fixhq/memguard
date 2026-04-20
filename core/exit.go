@@ -22,6 +22,16 @@ func Purge() {
 		keyMtx.Lock()
 		defer keyMtx.Unlock()
 		if !key.Destroyed() {
+			// Stop the re-key goroutine before acquiring the coffer lock
+			// to prevent deadlock if re-key is mid-execution holding the lock.
+			if key.done != nil {
+				select {
+				case <-key.done:
+					// Already closed.
+				default:
+					close(key.done)
+				}
+			}
 			key.Lock()
 			defer key.Unlock()
 		}
