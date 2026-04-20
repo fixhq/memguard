@@ -387,6 +387,8 @@ func (b *LockedBuffer) String() string {
 Uint16 returns a slice pointing to the protected region of memory with the data represented as a sequence of unsigned 16 bit integers. Its length will be half that of the byte slice, excluding any remaining part that doesn't form a complete uint16 value.
 
 If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Uint16() []uint16 {
 
@@ -419,6 +421,8 @@ func (b *LockedBuffer) Uint16() []uint16 {
 Uint32 returns a slice pointing to the protected region of memory with the data represented as a sequence of unsigned 32 bit integers. Its length will be one quarter that of the byte slice, excluding any remaining part that doesn't form a complete uint32 value.
 
 If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Uint32() []uint32 {
 
@@ -451,6 +455,8 @@ func (b *LockedBuffer) Uint32() []uint32 {
 Uint64 returns a slice pointing to the protected region of memory with the data represented as a sequence of unsigned 64 bit integers. Its length will be one eighth that of the byte slice, excluding any remaining part that doesn't form a complete uint64 value.
 
 If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Uint64() []uint64 {
 
@@ -481,6 +487,8 @@ func (b *LockedBuffer) Uint64() []uint64 {
 
 /*
 Int8 returns a slice pointing to the protected region of memory with the data represented as a sequence of signed 8 bit integers. If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Int8() []int8 {
 
@@ -507,6 +515,8 @@ func (b *LockedBuffer) Int8() []int8 {
 Int16 returns a slice pointing to the protected region of memory with the data represented as a sequence of signed 16 bit integers. Its length will be half that of the byte slice, excluding any remaining part that doesn't form a complete int16 value.
 
 If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Int16() []int16 {
 
@@ -539,6 +549,8 @@ func (b *LockedBuffer) Int16() []int16 {
 Int32 returns a slice pointing to the protected region of memory with the data represented as a sequence of signed 32 bit integers. Its length will be one quarter that of the byte slice, excluding any remaining part that doesn't form a complete int32 value.
 
 If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Int32() []int32 {
 
@@ -571,6 +583,8 @@ func (b *LockedBuffer) Int32() []int32 {
 Int64 returns a slice pointing to the protected region of memory with the data represented as a sequence of signed 64 bit integers. Its length will be one eighth that of the byte slice, excluding any remaining part that doesn't form a complete int64 value.
 
 If called on a destroyed LockedBuffer, a nil slice will be returned.
+
+WARNING: The returned slice points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the slice beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) Int64() []int64 {
 
@@ -603,6 +617,8 @@ func (b *LockedBuffer) Int64() []int64 {
 ByteArray8 returns a pointer to some 8 byte array. Care must be taken not to dereference the pointer and instead pass it around as-is.
 
 The length of the buffer must be at least 8 bytes in size and the LockedBuffer should not be destroyed. In either of these cases a nil value is returned.
+
+WARNING: The returned pointer points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the pointer beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) ByteArray8() *[8]byte {
 
@@ -627,6 +643,8 @@ func (b *LockedBuffer) ByteArray8() *[8]byte {
 ByteArray16 returns a pointer to some 16 byte array. Care must be taken not to dereference the pointer and instead pass it around as-is.
 
 The length of the buffer must be at least 16 bytes in size and the LockedBuffer should not be destroyed. In either of these cases a nil value is returned.
+
+WARNING: The returned pointer points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the pointer beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) ByteArray16() *[16]byte {
 
@@ -651,6 +669,8 @@ func (b *LockedBuffer) ByteArray16() *[16]byte {
 ByteArray32 returns a pointer to some 32 byte array. Care must be taken not to dereference the pointer and instead pass it around as-is.
 
 The length of the buffer must be at least 32 bytes in size and the LockedBuffer should not be destroyed. In either of these cases a nil value is returned.
+
+WARNING: The returned pointer points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the pointer beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) ByteArray32() *[32]byte {
 
@@ -675,6 +695,8 @@ func (b *LockedBuffer) ByteArray32() *[32]byte {
 ByteArray64 returns a pointer to some 64 byte array. Care must be taken not to dereference the pointer and instead pass it around as-is.
 
 The length of the buffer must be at least 64 bytes in size and the LockedBuffer should not be destroyed. In either of these cases a nil value is returned.
+
+WARNING: The returned pointer points directly into mlock'd memory. It becomes invalid after Destroy is called — any subsequent access results in undefined behavior. Do not retain the pointer beyond the lifetime of the LockedBuffer.
 */
 func (b *LockedBuffer) ByteArray64() *[64]byte {
 
