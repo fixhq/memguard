@@ -49,7 +49,7 @@ func CatchSignal(f func(os.Signal), signals ...os.Signal) {
 	sigfunc <- f
 
 	// Notify the channel if we receive a signal.
-	signal.Reset()
+	signal.Reset(signals...)
 	signal.Notify(listener, signals...)
 }
 
