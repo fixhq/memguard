@@ -18,6 +18,9 @@ var ErrNullBuffer = errors.New("<memguard::core::ErrNullBuffer> buffer size must
 // ErrBufferExpired is returned when attempting to perform an operation on or with a buffer that has been destroyed.
 var ErrBufferExpired = errors.New("<memguard::core::ErrBufferExpired> buffer has been purged from memory and can no longer be used")
 
+// ErrBufferImmutable is returned when attempting to write to an immutable buffer.
+var ErrBufferImmutable = errors.New("<memguard::core::ErrBufferImmutable> buffer is immutable; melt it before writing")
+
 /*
 Buffer is a structure that holds raw sensitive data.
 
@@ -169,6 +172,9 @@ func (b *Buffer) Scramble() {
 func (b *Buffer) scramble() error {
 	b.Lock()
 	defer b.Unlock()
+	if !b.mutable {
+		return ErrBufferImmutable
+	}
 	return Scramble(b.Data())
 }
 
