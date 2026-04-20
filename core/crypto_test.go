@@ -195,6 +195,18 @@ func TestEncryptDecrypt(t *testing.T) {
 		t.Error("expected error with modified ciphertext; got", err)
 	}
 
+	// Attempt decryption with short ciphertext (less than Overhead bytes).
+	shortInputs := [][]byte{nil, {}, make([]byte, 1), make([]byte, Overhead-1)}
+	for _, short := range shortInputs {
+		length, err = Decrypt(short, k, dm)
+		if length != 0 {
+			t.Errorf("expected length = 0 for short ciphertext (len=%d); got %d", len(short), length)
+		}
+		if err != ErrDecryptionFailed {
+			t.Errorf("expected ErrDecryptionFailed for short ciphertext (len=%d); got %v", len(short), err)
+		}
+	}
+
 	// Generate a key of an invalid length.
 	ik = make([]byte, 16)
 	Scramble(ik)

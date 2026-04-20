@@ -56,6 +56,11 @@ func Decrypt(ciphertext, key []byte, output []byte) (int, error) {
 		return 0, ErrInvalidKeyLength
 	}
 
+	// Check the ciphertext is at least large enough to contain a nonce and auth tag.
+	if len(ciphertext) < Overhead {
+		return 0, ErrDecryptionFailed
+	}
+
 	// Check the length of the given output buffer.
 	if len(output) < (len(ciphertext) - Overhead) {
 		return 0, ErrBufferTooSmall
