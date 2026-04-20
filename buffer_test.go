@@ -1195,7 +1195,7 @@ func TestInt64(t *testing.T) {
 		t.Error("expected nil slice as buffer destroyed")
 	}
 	b = newNullBuffer()
-	if b.Int32() != nil {
+	if b.Int64() != nil {
 		t.Error("should be nil")
 	}
 }
