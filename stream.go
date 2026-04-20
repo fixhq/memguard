@@ -64,15 +64,14 @@ func (s *Stream) Write(data []byte) (int, error) {
 	defer s.Unlock()
 
 	for i := 0; i < len(data); i += StreamChunkSize {
-		var chunk []byte
-		if i+StreamChunkSize > len(data) {
-			chunk = make([]byte, len(data)%StreamChunkSize)
-			copy(chunk, data[len(data)-(len(data)%StreamChunkSize):])
-		} else {
-			chunk = make([]byte, StreamChunkSize)
-			copy(chunk, data[i:i+StreamChunkSize])
+		end := i + StreamChunkSize
+		if end > len(data) {
+			end = len(data)
 		}
-		s.join(NewEnclave(chunk))
+		// Use a mlock'd buffer to avoid plaintext on the unprotected Go heap.
+		buf := NewBuffer(end - i)
+		buf.Copy(data[i:end])
+		s.join(buf.Seal())
 	}
 	return len(data), nil
 }
