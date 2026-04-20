@@ -84,8 +84,8 @@ func Seal(b *Buffer) (*Enclave, error) {
 
 	// Construct the Enclave from the Buffer's data.
 	e, err := func() (*Enclave, error) {
-		b.RLock() // Attain a read lock.
-		defer b.RUnlock()
+		b.Lock() // Attain a write lock since NewEnclave wipes the buffer.
+		defer b.Unlock()
 		return NewEnclave(b.Data())
 	}()
 	if err != nil {
