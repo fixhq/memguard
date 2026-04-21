@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/awnumar/memguard/core"
+	"github.com/fixhq/memguard/core"
 )
 
 func TestNewEnclave(t *testing.T) {

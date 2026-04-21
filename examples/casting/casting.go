@@ -19,7 +19,7 @@ package casting
 import (
 	"unsafe"
 
-	"github.com/awnumar/memguard"
+	"github.com/fixhq/memguard"
 )
 
 // Secure is some generic example struct containing sensitive information.

@@ -1,7 +1,7 @@
 package memguard
 
 import (
-	"github.com/awnumar/memguard/core"
+	"github.com/fixhq/memguard/core"
 )
 
 /* Enhancement: check for low memory locking limit and print warning?*/

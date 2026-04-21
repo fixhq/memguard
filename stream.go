@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/awnumar/memguard/core"
+	"github.com/fixhq/memguard/core"
 )
 
 // StreamChunkSize is the maximum amount of data that is locked into memory at a time.

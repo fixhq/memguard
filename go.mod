@@ -1,4 +1,4 @@
-module github.com/awnumar/memguard
+module github.com/fixhq/memguard
 
 go 1.26.2
 

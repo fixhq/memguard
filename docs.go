@@ -7,7 +7,7 @@ Package memguard implements a secure software enclave for the storage of sensiti
 		"fmt"
 		"os"
 
-		"github.com/awnumar/memguard"
+		"github.com/fixhq/memguard"
 	)
 
 	func main() {

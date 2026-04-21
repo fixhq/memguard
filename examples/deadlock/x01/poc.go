@@ -9,7 +9,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/awnumar/memguard"
+	"github.com/fixhq/memguard"
 	"lukechampine.com/frand"
 )
 

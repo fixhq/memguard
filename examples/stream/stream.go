@@ -20,7 +20,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/awnumar/memguard"
+	"github.com/fixhq/memguard"
 )
 
 // SlowRandByte writes 16KiB of random data to a stream and then operates on it in chunks, returning a random number between 0 and 255.

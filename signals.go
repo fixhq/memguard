@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/awnumar/memguard/core"
+	"github.com/fixhq/memguard/core"
 )
 
 var (

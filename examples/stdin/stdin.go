@@ -20,7 +20,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/awnumar/memguard"
+	"github.com/fixhq/memguard"
 )
 
 // ReadKeyFromStdin reads a key from standard inputs and returns it sealed inside an Enclave object.

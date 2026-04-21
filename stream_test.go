@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/awnumar/memguard/core"
+	"github.com/fixhq/memguard/core"
 )
 
 func write(t *testing.T, s *Stream, b []byte) {

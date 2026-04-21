@@ -5,7 +5,7 @@ package x02
 import (
 	"fmt"
 
-	"github.com/awnumar/memguard"
+	"github.com/fixhq/memguard"
 	"golang.org/x/sys/unix"
 )
 

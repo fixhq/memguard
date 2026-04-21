@@ -22,7 +22,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/awnumar/memguard"
+	"github.com/fixhq/memguard"
 )
 
 // Save the data here so we can compare it later. Obviously this leaks the secret.

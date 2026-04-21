@@ -6,7 +6,7 @@ import (
 	"os"
 	"unsafe"
 
-	"github.com/awnumar/memguard/core"
+	"github.com/fixhq/memguard/core"
 )
 
 /*
