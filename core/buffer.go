@@ -54,8 +54,12 @@ func NewBuffer(size int) (*Buffer, error) {
 
 	b := new(Buffer)
 
-	// Allocate the total needed memory
+	// Allocate the total needed memory.
+	// Ensure innerLen > size so there is always space for a canary.
 	innerLen := roundToPageSize(size)
+	if innerLen == size {
+		innerLen += pageSize
+	}
 	b.memory, err = memcall.Alloc((2 * pageSize) + innerLen)
 	if err != nil {
 		Panic(err)

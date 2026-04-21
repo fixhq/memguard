@@ -67,7 +67,11 @@ func TestLotsOfAllocs(t *testing.T) {
 		if len(b.data) != i {
 			t.Error("invalid data length")
 		}
-		if len(b.memory) != roundToPageSize(i)+2*pageSize {
+		expectedInnerLen := roundToPageSize(i)
+		if expectedInnerLen == i {
+			expectedInnerLen += pageSize
+		}
+		if len(b.memory) != expectedInnerLen+2*pageSize {
 			t.Error("memory length invalid")
 		}
 		if len(b.preguard) != pageSize || len(b.postguard) != pageSize {
