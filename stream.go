@@ -45,8 +45,8 @@ Stream is an in-memory encrypted container implementing the reader and writer in
 It is most useful when you need to store lots of data in memory and are able to work on it in chunks.
 */
 type Stream struct {
-	sync.Mutex
 	*queue
+	sync.Mutex
 }
 
 // NewStream initialises a new empty Stream object.

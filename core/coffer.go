@@ -16,13 +16,11 @@ var ErrCofferExpired = errors.New("<memguard::core::ErrCofferExpired> attempted 
 Coffer is a specialized container for securing highly-sensitive, 32 byte values.
 */
 type Coffer struct {
-	sync.Mutex
-
 	left  *Buffer
 	right *Buffer
-
-	rand *Buffer
-	done chan struct{}
+	rand  *Buffer
+	done  chan struct{}
+	sync.Mutex
 }
 
 // NewCoffer is a raw constructor for the *Coffer object.

@@ -27,19 +27,17 @@ Buffer is a structure that holds raw sensitive data.
 The number of Buffers that can exist at one time is limited by how much memory your system's kernel allows each process to mlock/VirtualLock. Therefore you should call DestroyBuffer on Buffers that you no longer need, ideally defering a Destroy call after creating a new one.
 */
 type Buffer struct {
+	data      []byte // Portion of memory holding the data
+	memory    []byte // Entire allocated memory region
+	preguard  []byte // Guard page addressed before the data
+	inner     []byte // Inner region between the guard pages
+	postguard []byte // Guard page addressed after the data
+	canary    []byte // Value written behind data to detect spillage
+
 	sync.RWMutex // Local mutex lock // TODO: this does not protect 'data' field
 
 	alive   bool // Signals that destruction has not come
 	mutable bool // Mutability state of underlying memory
-
-	data   []byte // Portion of memory holding the data
-	memory []byte // Entire allocated memory region
-
-	preguard  []byte // Guard page addressed before the data
-	inner     []byte // Inner region between the guard pages
-	postguard []byte // Guard page addressed after the data
-
-	canary []byte // Value written behind data to detect spillage
 }
 
 /*
@@ -271,8 +269,8 @@ func (b *Buffer) isDestroyed() bool {
 
 // BufferList stores a list of buffers in a thread-safe manner.
 type bufferList struct {
-	sync.RWMutex
 	list []*Buffer
+	sync.RWMutex
 }
 
 // Add appends a given Buffer to the list.
