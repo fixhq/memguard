@@ -2,6 +2,7 @@ package memguard
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"unsafe"
@@ -101,6 +102,10 @@ NewBufferFromReaderUntil constructs an immutable buffer containing data sourced 
 If an error is encountered before the delimiter value, the error will be returned along with the data read up until that point.
 */
 func NewBufferFromReaderUntil(r io.Reader, delim byte) (*LockedBuffer, error) {
+	if r == nil {
+		return newNullBuffer(), errors.New("<memguard::NewBufferFromReaderUntil> reader is nil")
+	}
+
 	// Construct a buffer with a data page that fills an entire memory page.
 	b := NewBuffer(os.Getpagesize())
 
@@ -160,6 +165,10 @@ NewBufferFromEntireReader reads from an io.Reader into an immutable buffer. It w
 A nil error is returned precisely when we managed to read all the way until EOF. Any data read is returned in either case.
 */
 func NewBufferFromEntireReader(r io.Reader) (*LockedBuffer, error) {
+	if r == nil {
+		return newNullBuffer(), errors.New("<memguard::NewBufferFromEntireReader> reader is nil")
+	}
+
 	// Create a buffer with a data region of one page size.
 	b := NewBuffer(os.Getpagesize())
 
@@ -338,14 +347,14 @@ func (b *LockedBuffer) Destroy() {
 IsAlive returns a boolean value indicating if a LockedBuffer is alive, i.e. that it has not been destroyed.
 */
 func (b *LockedBuffer) IsAlive() bool {
-	return b.Buffer.Alive()
+	return b.Alive()
 }
 
 /*
 IsMutable returns a boolean value indicating if a LockedBuffer is mutable.
 */
 func (b *LockedBuffer) IsMutable() bool {
-	return b.Buffer.Mutable()
+	return b.Mutable()
 }
 
 /*
@@ -366,7 +375,7 @@ func (b *LockedBuffer) EqualTo(buf []byte) bool {
 Bytes returns a byte slice referencing the protected region of memory.
 */
 func (b *LockedBuffer) Bytes() []byte {
-	return b.Buffer.Data()
+	return b.Data()
 }
 
 /*
@@ -393,7 +402,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Uint16() []uint16 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -411,10 +420,10 @@ func (b *LockedBuffer) Uint16() []uint16 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]uint16)(unsafe.Pointer(&sl))
+	return *(*[]uint16)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -427,7 +436,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Uint32() []uint32 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -445,10 +454,10 @@ func (b *LockedBuffer) Uint32() []uint32 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]uint32)(unsafe.Pointer(&sl))
+	return *(*[]uint32)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -461,7 +470,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Uint64() []uint64 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -479,10 +488,10 @@ func (b *LockedBuffer) Uint64() []uint64 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]uint64)(unsafe.Pointer(&sl))
+	return *(*[]uint64)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -493,7 +502,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Int8() []int8 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -505,10 +514,10 @@ func (b *LockedBuffer) Int8() []int8 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), b.Size(), b.Size()}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), b.Size(), b.Size()} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]int8)(unsafe.Pointer(&sl))
+	return *(*[]int8)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -521,7 +530,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Int16() []int16 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -539,10 +548,10 @@ func (b *LockedBuffer) Int16() []int16 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]int16)(unsafe.Pointer(&sl))
+	return *(*[]int16)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -555,7 +564,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Int32() []int32 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -573,10 +582,10 @@ func (b *LockedBuffer) Int32() []int32 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]int32)(unsafe.Pointer(&sl))
+	return *(*[]int32)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -589,7 +598,7 @@ WARNING: The returned slice points directly into mlock'd memory. It becomes inva
 func (b *LockedBuffer) Int64() []int64 {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -607,10 +616,10 @@ func (b *LockedBuffer) Int64() []int64 {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive-checked, mlock'd memory
 
 	// Cast the representation to the correct type and return it.
-	return *(*[]int64)(unsafe.Pointer(&sl))
+	return *(*[]int64)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
 
 /*
@@ -623,7 +632,7 @@ WARNING: The returned pointer points directly into mlock'd memory. It becomes in
 func (b *LockedBuffer) ByteArray8() *[8]byte {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -636,7 +645,7 @@ func (b *LockedBuffer) ByteArray8() *[8]byte {
 	}
 
 	// Cast the representation to the correct type.
-	return (*[8]byte)(unsafe.Pointer(&b.Bytes()[0]))
+	return (*[8]byte)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: alive-checked, length >= 8 verified above
 }
 
 /*
@@ -649,7 +658,7 @@ WARNING: The returned pointer points directly into mlock'd memory. It becomes in
 func (b *LockedBuffer) ByteArray16() *[16]byte {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -662,7 +671,7 @@ func (b *LockedBuffer) ByteArray16() *[16]byte {
 	}
 
 	// Cast the representation to the correct type.
-	return (*[16]byte)(unsafe.Pointer(&b.Bytes()[0]))
+	return (*[16]byte)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: alive-checked, length >= 16 verified above
 }
 
 /*
@@ -675,7 +684,7 @@ WARNING: The returned pointer points directly into mlock'd memory. It becomes in
 func (b *LockedBuffer) ByteArray32() *[32]byte {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -688,7 +697,7 @@ func (b *LockedBuffer) ByteArray32() *[32]byte {
 	}
 
 	// Cast the representation to the correct type.
-	return (*[32]byte)(unsafe.Pointer(&b.Bytes()[0]))
+	return (*[32]byte)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: alive-checked, length >= 32 verified above
 }
 
 /*
@@ -701,7 +710,7 @@ WARNING: The returned pointer points directly into mlock'd memory. It becomes in
 func (b *LockedBuffer) ByteArray64() *[64]byte {
 
 	// Check if still alive.
-	if !b.Buffer.Alive() {
+	if !b.Alive() {
 		return nil
 	}
 
@@ -714,5 +723,5 @@ func (b *LockedBuffer) ByteArray64() *[64]byte {
 	}
 
 	// Cast the representation to the correct type.
-	return (*[64]byte)(unsafe.Pointer(&b.Bytes()[0]))
+	return (*[64]byte)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: alive-checked, length >= 64 verified above
 }

@@ -9,11 +9,11 @@ func TestPurge(t *testing.T) {
 	// Create a bunch of things to simulate a working environment.
 	enclave, err := NewEnclave([]byte("yellow submarine"))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	buffer, err := NewBuffer(32)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	oldKey := getOrCreateKey()
@@ -58,9 +58,11 @@ func TestPurge(t *testing.T) {
 	// Create a buffer with invalid canary.
 	b, err := NewBuffer(32)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	Scramble(b.inner)
+	if err := Scramble(b.inner); err != nil {
+		t.Fatal(err)
+	}
 	b.Freeze()
 	if !panics(func() {
 		Purge()

@@ -67,6 +67,9 @@ func TestSecureStructArray(t *testing.T) {
 
 func TestSecureStructSlice(t *testing.T) {
 	b, s := SecureStructSlice(3)
+	if b == nil || s == nil {
+		t.Fatal("SecureStructSlice returned nil")
+	}
 	testSecureStruct(b, &s[0], 0, t)
 	testSecureStruct(b, &s[1], 64, t)
 	testSecureStruct(b, &s[2], 128, t)

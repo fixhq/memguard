@@ -10,11 +10,11 @@ import (
 func TestNewEnclave(t *testing.T) {
 	e := NewEnclave([]byte("yellow submarine"))
 	if e == nil {
-		t.Error("got nil enclave")
+		t.Fatal("got nil enclave")
 	}
 	data, err := e.Open()
 	if err != nil {
-		t.Error("unexpected error:", err)
+		t.Fatal("unexpected error:", err)
 	}
 	if !bytes.Equal(data.Bytes(), []byte("yellow submarine")) {
 		t.Error("data doesn't match input")
@@ -29,11 +29,11 @@ func TestNewEnclave(t *testing.T) {
 func TestNewEnclaveRandom(t *testing.T) {
 	e := NewEnclaveRandom(32)
 	if e == nil {
-		t.Error("got nil enclave")
+		t.Fatal("got nil enclave")
 	}
 	data, err := e.Open()
 	if err != nil {
-		t.Error("unexpected error:", err)
+		t.Fatal("unexpected error:", err)
 	}
 	if len(data.Bytes()) != 32 || cap(data.Bytes()) != 32 {
 		t.Error("buffer sizes incorrect")
@@ -51,11 +51,11 @@ func TestNewEnclaveRandom(t *testing.T) {
 func TestOpen(t *testing.T) {
 	e := NewEnclave([]byte("yellow submarine"))
 	if e == nil {
-		t.Error("got nil enclave")
+		t.Fatal("got nil enclave")
 	}
 	b, err := e.Open()
 	if err != nil {
-		t.Error("unexpected error;", err)
+		t.Fatal("unexpected error;", err)
 	}
 	if b == nil {
 		t.Error("buffer should not be nil")
@@ -76,7 +76,7 @@ func TestOpen(t *testing.T) {
 	}
 	e = NewEnclaveRandom(0)
 	if !panics(func() {
-		e.Open()
+		_, _ = e.Open()
 	}) {
 		t.Error("func should panic on nil enclave")
 	}

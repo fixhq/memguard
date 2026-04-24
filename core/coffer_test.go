@@ -36,7 +36,9 @@ func TestNewCoffer(t *testing.T) {
 	}
 
 	s.Unlock() // Release mutex to allow destruction.
-	s.Destroy()
+	if err := s.Destroy(); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestCofferInit(t *testing.T) {
@@ -45,7 +47,7 @@ func TestCofferInit(t *testing.T) {
 	// Get the value stored inside.
 	view, err := s.View()
 	if err != nil {
-		t.Error("unexpected error")
+		t.Fatal("unexpected error")
 	}
 	value := make([]byte, 32)
 	copy(value, view.Data())
@@ -59,7 +61,7 @@ func TestCofferInit(t *testing.T) {
 	// Get the new value stored inside.
 	view, err = s.View()
 	if err != nil {
-		t.Error("unexpected error")
+		t.Fatal("unexpected error")
 	}
 	newValue := make([]byte, 32)
 	copy(newValue, view.Data())
@@ -70,7 +72,9 @@ func TestCofferInit(t *testing.T) {
 		t.Error("value was not refreshed")
 	}
 
-	s.Destroy()
+	if err := s.Destroy(); err != nil {
+		t.Error(err)
+	}
 
 	// Check error condition.
 	if err := s.Init(); err != ErrCofferExpired {
@@ -84,10 +88,10 @@ func TestCofferView(t *testing.T) {
 	// Get the value stored inside.
 	view, err := s.View()
 	if err != nil {
-		t.Error("unexpected error")
+		t.Fatal("unexpected error")
 	}
 	if view == nil {
-		t.Error("returned object is nil")
+		t.Fatal("returned object is nil")
 	}
 
 	// Some sanity checks on the inner value.
@@ -101,7 +105,9 @@ func TestCofferView(t *testing.T) {
 	// Destroy our temporary view of the coffer's contents.
 	view.Destroy()
 
-	s.Destroy()
+	if err := s.Destroy(); err != nil {
+		t.Error(err)
+	}
 
 	// Check error condition.
 	view, err = s.View()
@@ -119,7 +125,7 @@ func TestCofferRekey(t *testing.T) {
 	// remember the value stored inside
 	view, err := s.View()
 	if err != nil {
-		t.Error("unexpected error;", err)
+		t.Fatal("unexpected error;", err)
 	}
 	orgValue := make([]byte, 32)
 	copy(orgValue, view.Data())
@@ -133,11 +139,13 @@ func TestCofferRekey(t *testing.T) {
 	copy(right, s.right.Data())
 	s.Unlock() // un-halt re-key cycle
 
-	s.Rekey() // force a re-key
+	if err := s.Rekey(); err != nil {
+		t.Error(err)
+	}
 
 	view, err = s.View()
 	if err != nil {
-		t.Error("unexpected error;", err)
+		t.Fatal("unexpected error;", err)
 	}
 	newValue := make([]byte, 32)
 	copy(newValue, view.Data())
@@ -151,7 +159,9 @@ func TestCofferRekey(t *testing.T) {
 		t.Error("partition values did not change")
 	}
 
-	s.Destroy()
+	if err := s.Destroy(); err != nil {
+		t.Error(err)
+	}
 
 	if err := s.Rekey(); err != ErrCofferExpired {
 		t.Error("expected ErrCofferExpired; got", err)
@@ -160,7 +170,9 @@ func TestCofferRekey(t *testing.T) {
 
 func TestCofferDestroy(t *testing.T) {
 	s := NewCoffer()
-	s.Destroy()
+	if err := s.Destroy(); err != nil {
+		t.Error(err)
+	}
 
 	// Check metadata flags.
 	if !s.Destroyed() {
@@ -189,7 +201,11 @@ func TestCofferConcurrent(t *testing.T) {
 	wg := &sync.WaitGroup{}
 
 	s := NewCoffer()
-	defer s.Destroy()
+	defer func() {
+		if err := s.Destroy(); err != nil {
+			t.Error(err)
+		}
+	}()
 
 	start := time.Now()
 

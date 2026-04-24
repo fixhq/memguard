@@ -105,6 +105,10 @@ Open decrypts an Enclave and puts the contents into a Buffer object. The given E
 The Buffer object should be destroyed after the contents are no longer needed.
 */
 func Open(e *Enclave) (*Buffer, error) {
+	if e == nil {
+		return nil, ErrNullEnclave
+	}
+
 	// Allocate a secure Buffer to hold the decrypted data.
 	b, err := NewBuffer(len(e.ciphertext) - Overhead)
 	if err != nil {
@@ -137,5 +141,8 @@ func Open(e *Enclave) (*Buffer, error) {
 EnclaveSize returns the number of bytes of plaintext data stored inside an Enclave.
 */
 func EnclaveSize(e *Enclave) int {
+	if e == nil {
+		return 0
+	}
 	return len(e.ciphertext) - Overhead
 }

@@ -38,7 +38,7 @@ func TestPtrSafetyWithGC(t *testing.T) {
 func TestNewBuffer(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("buffer should not be nil")
+		t.Fatal("buffer should not be nil")
 	}
 	if len(b.Bytes()) != 32 || cap(b.Bytes()) != 32 {
 		t.Error("buffer sizes incorrect")
@@ -72,7 +72,7 @@ func TestNewBufferFromBytes(t *testing.T) {
 	data := []byte("yellow submarine")
 	b := NewBufferFromBytes(data)
 	if b == nil {
-		t.Error("buffer should not be nil")
+		t.Fatal("buffer should not be nil")
 	}
 	if len(b.Bytes()) != 16 || cap(b.Bytes()) != 16 {
 		t.Error("buffer sizes invalid")
@@ -108,7 +108,7 @@ func TestNewBufferFromBytes(t *testing.T) {
 func TestNewBufferFromReader(t *testing.T) {
 	b, err := NewBufferFromReader(rand.Reader, 4096)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 4096 {
 		t.Error("buffer of incorrect size")
@@ -124,7 +124,7 @@ func TestNewBufferFromReader(t *testing.T) {
 	r := bytes.NewReader([]byte("yellow submarine"))
 	b, err = NewBufferFromReader(r, 16)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 16 {
 		t.Error("buffer of incorrect size")
@@ -142,6 +142,9 @@ func TestNewBufferFromReader(t *testing.T) {
 	if err == nil {
 		t.Error("expected error got nil;", err)
 	}
+	if b == nil {
+		t.Fatal("expected non-nil buffer with partial read")
+	}
 	if b.Size() != 16 {
 		t.Error("incorrect size")
 	}
@@ -158,6 +161,9 @@ func TestNewBufferFromReader(t *testing.T) {
 	if err == nil {
 		t.Error("expected error got nil")
 	}
+	if b == nil {
+		t.Fatal("expected null buffer, got nil")
+	}
 	if b.IsAlive() {
 		t.Error("expected destroyed buffer")
 	}
@@ -170,7 +176,7 @@ func TestNewBufferFromReader(t *testing.T) {
 	r = bytes.NewReader([]byte("yellow submarine"))
 	b, err = NewBufferFromReader(r, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Bytes() != nil {
 		t.Error("data slice should be nil")
@@ -209,7 +215,7 @@ func TestNewBufferFromReaderUntil(t *testing.T) {
 	r := bytes.NewReader(data)
 	b, err := NewBufferFromReaderUntil(r, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 4999 {
 		t.Error("buffer has incorrect size")
@@ -229,6 +235,9 @@ func TestNewBufferFromReaderUntil(t *testing.T) {
 	if err == nil {
 		t.Error("expected error got nil")
 	}
+	if b == nil {
+		t.Fatal("expected non-nil buffer with partial read")
+	}
 	if b.Size() != 32 {
 		t.Error("invalid size")
 	}
@@ -245,7 +254,7 @@ func TestNewBufferFromReaderUntil(t *testing.T) {
 	r = bytes.NewReader([]byte{'x'})
 	b, err = NewBufferFromReaderUntil(r, 'x')
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 0 {
 		t.Error("expected no data")
@@ -258,6 +267,9 @@ func TestNewBufferFromReaderUntil(t *testing.T) {
 	b, err = NewBufferFromReaderUntil(r, 1)
 	if err == nil {
 		t.Error("expected error got nil")
+	}
+	if b == nil {
+		t.Fatal("expected null buffer, got nil")
 	}
 	if b.IsAlive() {
 		t.Error("expected destroyed buffer")
@@ -272,7 +284,7 @@ func TestNewBufferFromReaderUntil(t *testing.T) {
 	rr := new(s)
 	b, err = NewBufferFromReaderUntil(rr, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 4999 {
 		t.Error("invalid size")
@@ -321,7 +333,7 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 	r := bytes.NewReader([]byte("yellow submarine"))
 	b, err := NewBufferFromEntireReader(r)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 16 {
 		t.Error("incorrect size", b.Size())
@@ -339,7 +351,7 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 	r = bytes.NewReader(data)
 	b, err = NewBufferFromEntireReader(r)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != len(data) {
 		t.Error("incorrect size", b.Size())
@@ -355,7 +367,7 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 	r = bytes.NewReader([]byte{})
 	b, err = NewBufferFromEntireReader(r)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 0 {
 		t.Error("buffer should be nil size")
@@ -367,7 +379,7 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 	rr := new(ss)
 	b, err = NewBufferFromEntireReader(rr)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if b.Size() != 4999 {
 		t.Error("incorrect size", b.Size())
@@ -385,6 +397,9 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 	if err == nil {
 		t.Error("expected error got nil")
 	}
+	if b == nil {
+		t.Fatal("expected non-nil buffer with partial read")
+	}
 	if b.Size() != 5000 {
 		t.Error(b.Size())
 	}
@@ -399,19 +414,19 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 	// real world test
 	f, err := os.Open("LICENSE")
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	data, err = io.ReadAll(f)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	_, err = f.Seek(0, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	b, err = NewBufferFromEntireReader(f)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if !b.EqualTo(data) {
 		t.Error("incorrect data")
@@ -420,13 +435,15 @@ func TestNewBufferFromEntireReader(t *testing.T) {
 		t.Error("buffer should be immutable")
 	}
 	b.Destroy()
-	f.Close()
+	if err := f.Close(); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestNewBufferRandom(t *testing.T) {
 	b := NewBufferRandom(32)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	if len(b.Bytes()) != 32 || cap(b.Bytes()) != 32 {
 		t.Error("buffer sizes incorrect")
@@ -459,7 +476,7 @@ func TestNewBufferRandom(t *testing.T) {
 func TestFreeze(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	if !b.IsMutable() {
 		t.Error("buffer isn't mutable")
@@ -496,7 +513,7 @@ func TestFreeze(t *testing.T) {
 func TestMelt(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	b.Freeze()
 	if b.IsMutable() {
@@ -539,20 +556,20 @@ func TestMelt(t *testing.T) {
 func TestSeal(t *testing.T) {
 	b := NewBufferRandom(32)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	data := make([]byte, 32)
 	copy(data, b.Bytes())
 	e := b.Seal()
 	if e == nil {
-		t.Error("got nil enclave")
+		t.Fatal("got nil enclave")
 	}
 	if b.IsAlive() {
 		t.Error("buffer should be destroyed")
 	}
 	b, err := e.Open()
 	if err != nil {
-		t.Error("unexpected error;", err)
+		t.Fatal("unexpected error;", err)
 	}
 	if !bytes.Equal(b.Bytes(), data) {
 		t.Error("data does not match")
@@ -567,7 +584,7 @@ func TestSeal(t *testing.T) {
 func TestCopy(t *testing.T) {
 	b := NewBuffer(16)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	b.Copy([]byte("yellow submarine"))
 	if !bytes.Equal(b.Bytes(), []byte("yellow submarine")) {
@@ -585,7 +602,7 @@ func TestCopy(t *testing.T) {
 func TestCopyAt(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	b.CopyAt(0, []byte("1234"))
 	if !bytes.Equal(b.Bytes()[:4], []byte("1234")) {
@@ -610,7 +627,7 @@ func TestCopyAt(t *testing.T) {
 func TestMove(t *testing.T) {
 	b := NewBuffer(16)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	b.Move([]byte("yellow submarine"))
 	if !bytes.Equal(b.Bytes(), []byte("yellow submarine")) {
@@ -635,7 +652,7 @@ func TestMove(t *testing.T) {
 func TestMoveAt(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	data := []byte("12345678")
 	b.MoveAt(0, data[:4])
@@ -664,7 +681,7 @@ func TestMoveAt(t *testing.T) {
 func TestScramble(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("buffer is nil")
+		t.Fatal("buffer is nil")
 	}
 	b.Scramble()
 	if bytes.Equal(b.Bytes(), make([]byte, 32)) {
@@ -691,7 +708,7 @@ func TestScramble(t *testing.T) {
 func TestWipe(t *testing.T) {
 	b := NewBufferRandom(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	b.Melt()
 	if bytes.Equal(b.Bytes(), make([]byte, 32)) {
@@ -715,7 +732,7 @@ func TestWipe(t *testing.T) {
 func TestSize(t *testing.T) {
 	b := NewBuffer(1234)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if b.Size() != 1234 {
 		t.Error("size does not match expected")
@@ -733,7 +750,7 @@ func TestSize(t *testing.T) {
 func TestDestroy(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if b.Bytes() == nil {
 		t.Error("expected buffer to not be nil")
@@ -783,19 +800,23 @@ func TestDestroy(t *testing.T) {
 func TestIsAlive(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if !b.IsAlive() {
 		t.Error("invalid state")
 	}
-	if b.IsAlive() != b.IsAlive() {
+	alive1 := b.IsAlive()
+	alive2 := b.IsAlive()
+	if alive1 != alive2 {
 		t.Error("states don't match")
 	}
 	b.Destroy()
 	if b.IsAlive() {
 		t.Error("invalid state")
 	}
-	if b.IsAlive() != b.IsAlive() {
+	alive1 = b.IsAlive()
+	alive2 = b.IsAlive()
+	if alive1 != alive2 {
 		t.Error("states don't match")
 	}
 	b = newNullBuffer()
@@ -807,26 +828,32 @@ func TestIsAlive(t *testing.T) {
 func TestIsMutable(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if !b.IsMutable() {
 		t.Error("invalid state")
 	}
-	if b.IsMutable() != b.IsMutable() {
+	mut1 := b.IsMutable()
+	mut2 := b.IsMutable()
+	if mut1 != mut2 {
 		t.Error("states don't match")
 	}
 	b.Freeze()
 	if b.IsMutable() {
 		t.Error("invalid state")
 	}
-	if b.IsMutable() != b.IsMutable() {
+	mut1 = b.IsMutable()
+	mut2 = b.IsMutable()
+	if mut1 != mut2 {
 		t.Error("states don't match")
 	}
 	b.Destroy()
 	if b.IsMutable() {
 		t.Error("invalid state")
 	}
-	if b.IsMutable() != b.IsMutable() {
+	mut1 = b.IsMutable()
+	mut2 = b.IsMutable()
+	if mut1 != mut2 {
 		t.Error("states don't match")
 	}
 	b = newNullBuffer()
@@ -856,14 +883,14 @@ func TestEqualTo(t *testing.T) {
 func TestBytes(t *testing.T) {
 	b := NewBufferFromBytes([]byte("yellow submarine"))
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if !bytes.Equal(b.Bytes(), []byte("yellow submarine")) {
 		t.Error("not equal contents")
 	}
 	b.Melt()
 	b.Bytes()[8] = ^b.Bytes()[8]
-	if !bytes.Equal(b.Buffer.Data(), b.Bytes()) {
+	if !bytes.Equal(b.Data(), b.Bytes()) {
 		t.Error("methods disagree")
 	}
 	b.Destroy()
@@ -880,7 +907,7 @@ func TestReader(t *testing.T) {
 	b := NewBufferRandom(32)
 	c, err := NewBufferFromReader(b.Reader(), 32)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if !bytes.Equal(b.Bytes(), c.Bytes()) {
 		t.Error("data not equal")
@@ -891,7 +918,7 @@ func TestReader(t *testing.T) {
 		t.Error("expected nul reader")
 	}
 	b = newNullBuffer()
-	if c.Reader().Size() != 0 {
+	if b.Reader().Size() != 0 {
 		t.Error("expected nul reader")
 	}
 }
@@ -915,7 +942,7 @@ func TestString(t *testing.T) {
 		t.Error("string should be empty")
 	}
 	b = newNullBuffer()
-	if s != "" {
+	if b.String() != "" {
 		t.Error("string should be empty")
 	}
 }
@@ -923,11 +950,11 @@ func TestString(t *testing.T) {
 func TestUint16(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u16 := b.Uint16()
 	if len(u16) != 16 || cap(u16) != 16 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&u16[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -935,11 +962,11 @@ func TestUint16(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(3)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u16 = b.Uint16()
 	if len(u16) != 1 || cap(u16) != 1 {
-		t.Error("sizes should be 1")
+		t.Fatal("sizes should be 1")
 	}
 	if uintptr(unsafe.Pointer(&u16[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -947,7 +974,7 @@ func TestUint16(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(1)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u16 = b.Uint16()
 	if u16 != nil {
@@ -966,11 +993,11 @@ func TestUint16(t *testing.T) {
 func TestUint32(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u32 := b.Uint32()
 	if len(u32) != 8 || cap(u32) != 8 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&u32[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -978,11 +1005,11 @@ func TestUint32(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(5)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u32 = b.Uint32()
 	if len(u32) != 1 || cap(u32) != 1 {
-		t.Error("sizes should be 1")
+		t.Fatal("sizes should be 1")
 	}
 	if uintptr(unsafe.Pointer(&u32[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -990,7 +1017,7 @@ func TestUint32(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(3)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u32 = b.Uint32()
 	if u32 != nil {
@@ -1009,11 +1036,11 @@ func TestUint32(t *testing.T) {
 func TestUint64(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u64 := b.Uint64()
 	if len(u64) != 4 || cap(u64) != 4 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&u64[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1021,11 +1048,11 @@ func TestUint64(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(9)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u64 = b.Uint64()
 	if len(u64) != 1 || cap(u64) != 1 {
-		t.Error("sizes should be 1")
+		t.Fatal("sizes should be 1")
 	}
 	if uintptr(unsafe.Pointer(&u64[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1033,7 +1060,7 @@ func TestUint64(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(7)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	u64 = b.Uint64()
 	if u64 != nil {
@@ -1052,11 +1079,11 @@ func TestUint64(t *testing.T) {
 func TestInt8(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i8 := b.Int8()
 	if len(i8) != 32 || cap(i8) != 32 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&i8[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1074,11 +1101,11 @@ func TestInt8(t *testing.T) {
 func TestInt16(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i16 := b.Int16()
 	if len(i16) != 16 || cap(i16) != 16 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&i16[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1086,11 +1113,11 @@ func TestInt16(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(3)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i16 = b.Int16()
 	if len(i16) != 1 || cap(i16) != 1 {
-		t.Error("sizes should be 1")
+		t.Fatal("sizes should be 1")
 	}
 	if uintptr(unsafe.Pointer(&i16[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1098,7 +1125,7 @@ func TestInt16(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(1)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i16 = b.Int16()
 	if i16 != nil {
@@ -1117,11 +1144,11 @@ func TestInt16(t *testing.T) {
 func TestInt32(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i32 := b.Int32()
 	if len(i32) != 8 || cap(i32) != 8 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&i32[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1129,11 +1156,11 @@ func TestInt32(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(5)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i32 = b.Int32()
 	if len(i32) != 1 || cap(i32) != 1 {
-		t.Error("sizes should be 1")
+		t.Fatal("sizes should be 1")
 	}
 	if uintptr(unsafe.Pointer(&i32[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1141,7 +1168,7 @@ func TestInt32(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(3)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i32 = b.Int32()
 	if i32 != nil {
@@ -1160,11 +1187,11 @@ func TestInt32(t *testing.T) {
 func TestInt64(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i64 := b.Int64()
 	if len(i64) != 4 || cap(i64) != 4 {
-		t.Error("sizes incorrect")
+		t.Fatal("sizes incorrect")
 	}
 	if uintptr(unsafe.Pointer(&i64[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1172,11 +1199,11 @@ func TestInt64(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(9)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i64 = b.Int64()
 	if len(i64) != 1 || cap(i64) != 1 {
-		t.Error("sizes should be 1")
+		t.Fatal("sizes should be 1")
 	}
 	if uintptr(unsafe.Pointer(&i64[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1184,7 +1211,7 @@ func TestInt64(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(7)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	i64 = b.Int64()
 	if i64 != nil {
@@ -1203,7 +1230,7 @@ func TestInt64(t *testing.T) {
 func TestByteArray8(t *testing.T) {
 	b := NewBuffer(8)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if uintptr(unsafe.Pointer(&b.ByteArray8()[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1211,7 +1238,7 @@ func TestByteArray8(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(7)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if b.ByteArray8() != nil {
 		t.Error("expected nil byte array")
@@ -1229,7 +1256,7 @@ func TestByteArray8(t *testing.T) {
 func TestByteArray16(t *testing.T) {
 	b := NewBuffer(16)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if uintptr(unsafe.Pointer(&b.ByteArray16()[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1237,7 +1264,7 @@ func TestByteArray16(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(15)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if b.ByteArray16() != nil {
 		t.Error("expected nil byte array")
@@ -1255,7 +1282,7 @@ func TestByteArray16(t *testing.T) {
 func TestByteArray32(t *testing.T) {
 	b := NewBuffer(32)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if uintptr(unsafe.Pointer(&b.ByteArray32()[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1263,7 +1290,7 @@ func TestByteArray32(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(31)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if b.ByteArray32() != nil {
 		t.Error("expected nil byte array")
@@ -1281,7 +1308,7 @@ func TestByteArray32(t *testing.T) {
 func TestByteArray64(t *testing.T) {
 	b := NewBuffer(64)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if uintptr(unsafe.Pointer(&b.ByteArray64()[0])) != uintptr(unsafe.Pointer(&b.Bytes()[0])) {
 		t.Error("pointer locations differ")
@@ -1289,7 +1316,7 @@ func TestByteArray64(t *testing.T) {
 	b.Destroy()
 	b = NewBuffer(63)
 	if b == nil {
-		t.Error("got nil buffer")
+		t.Fatal("got nil buffer")
 	}
 	if b.ByteArray64() != nil {
 		t.Error("expected nil byte array")

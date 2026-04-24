@@ -12,7 +12,7 @@ func TestNewEnclave(t *testing.T) {
 	// Create the Enclave object from this data.
 	e, err := NewEnclave(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Check that the buffer has been wiped.
@@ -37,13 +37,13 @@ func TestSeal(t *testing.T) {
 	// Create a new buffer for testing with.
 	b, err := NewBuffer(32)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Encrypt it into an Enclave.
 	e, err := Seal(b)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Do a sanity check on the length of the ciphertext.
@@ -59,7 +59,7 @@ func TestSeal(t *testing.T) {
 	// Decrypt the enclave into a new buffer.
 	buf, err := Open(e)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Check that the decrypted data is correct.
@@ -85,13 +85,13 @@ func TestOpen(t *testing.T) {
 	data := []byte("yellow submarine")
 	e, err := NewEnclave(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Open it.
 	buf, err := Open(e)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Sanity check the output.

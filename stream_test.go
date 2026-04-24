@@ -51,7 +51,7 @@ func TestStreamNextFlush(t *testing.T) {
 
 	c, err := s.Next()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if c.Size() != StreamChunkSize {
 		t.Error(c.Size())
@@ -63,7 +63,7 @@ func TestStreamNextFlush(t *testing.T) {
 
 	c, err = s.Flush()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if c.Size() != size-StreamChunkSize {
 		t.Error("unexpected length:", c.Size())
@@ -146,7 +146,7 @@ func TestStreamingSanity(t *testing.T) {
 	// read it back exactly
 	c, err := NewBufferFromReader(s, size)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if c.Size() != size {
 		t.Error("not enough data read back")
@@ -166,7 +166,7 @@ func TestStreamingSanity(t *testing.T) {
 	// read it all back
 	c, err = NewBufferFromEntireReader(s)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if c.Size() != size {
 		t.Error("not enough data read back")
@@ -188,7 +188,7 @@ func TestStreamingSanity(t *testing.T) {
 	// read it back until the delimiter
 	c, err = NewBufferFromReaderUntil(s, 'x')
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if c.Size() != size-1 {
 		t.Error("not enough data read back:", c.Size(), "want", size-1)
@@ -225,7 +225,9 @@ func BenchmarkStreamWrite(b *testing.B) {
 	s := NewStream()
 	buf := make([]byte, StreamChunkSize)
 	for i := 0; i < b.N; i++ {
-		s.Write(buf)
+		if _, err := s.Write(buf); err != nil {
+			b.Fatal(err)
+		}
 	}
 	runtime.KeepAlive(s)
 }
@@ -234,7 +236,9 @@ func BenchmarkStreamRead(b *testing.B) {
 	s := NewStream()
 	buf := make([]byte, StreamChunkSize)
 	for i := 0; i < b.N; i++ {
-		s.Write(buf)
+		if _, err := s.Write(buf); err != nil {
+			b.Fatal(err)
+		}
 	}
 
 	b.ReportAllocs()
@@ -242,7 +246,9 @@ func BenchmarkStreamRead(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		s.Read(buf)
+		if _, err := s.Read(buf); err != nil {
+			b.Fatal(err)
+		}
 	}
 
 	runtime.KeepAlive(s)

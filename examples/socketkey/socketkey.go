@@ -39,12 +39,18 @@ func SocketKey(size int) {
 	if err != nil {
 		memguard.SafePanic(err)
 	}
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: listener close: %v\n", err)
+		}
+	}()
 
 	// Catch signals and close the listener before terminating safely.
 	memguard.CatchSignal(func(s os.Signal) {
 		fmt.Println("Received signal:", s.String())
-		listener.Close()
+		if err := listener.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: listener close: %v\n", err)
+		}
 	}, os.Interrupt, os.Kill)
 
 	// Purge the session before returning.
@@ -61,7 +67,11 @@ func SocketKey(size int) {
 		if err != nil {
 			memguard.SafePanic(err)
 		}
-		defer conn.Close()
+		defer func() {
+			if err := conn.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "warning: conn close: %v\n", err)
+			}
+		}()
 
 		// Create a buffer filled with random bytes
 		buf := memguard.NewBufferRandom(size)
@@ -89,19 +99,25 @@ func SocketKey(size int) {
 		memguard.SafePanic(err)
 	}
 
+	if conn == nil {
+		memguard.SafePanic("accepted nil connection")
+	}
+
 	// Read the data directly into a guarded memory region
 	buf, err := memguard.NewBufferFromReader(conn, size)
 	if err != nil {
 		memguard.SafePanic(err)
 	}
 	defer buf.Destroy()
-	conn.Close()
+	if err := conn.Close(); err != nil {
+		memguard.SafePanic(err)
+	}
 
 	// fmt.Printf("Received key: %#v\n", buf.Bytes())
 
 	// Compare the key to make sure it wasn't corrupted.
 	if !bytes.Equal(data, buf.Bytes()) {
-		memguard.SafePanic(fmt.Sprint("sent != received ::", data, buf.Bytes()))
+		memguard.SafePanic(fmt.Sprint("sent != received ::", string(data), string(buf.Bytes())))
 	}
 
 	// Seal the key into an encrypted Enclave object.

@@ -17,10 +17,8 @@ func TestPanicsPoC(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	go func() {
-		select {
-		case <-sigs:
-			cancel()
-		}
+		<-sigs
+		cancel()
 	}()
 	OpenEnclave(ctx)
 }

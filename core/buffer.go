@@ -62,17 +62,20 @@ func NewBuffer(size int) (*Buffer, error) {
 	if err != nil {
 		Panic(err)
 	}
+	if b.memory == nil {
+		Panic("<memguard::core> memcall.Alloc returned nil without error")
+	}
 
 	// Construct slice reference for data buffer.
-	b.data = unsafe.Slice(&b.memory[pageSize+innerLen-size], size)
+	b.data = unsafe.Slice(&b.memory[pageSize+innerLen-size], size) // #nosec G103 -- safe: offset and size derived from validated allocation
 
 	// Construct slice references for page sectors.
-	b.preguard = unsafe.Slice(&b.memory[0], pageSize)
-	b.inner = unsafe.Slice(&b.memory[pageSize], innerLen)
-	b.postguard = unsafe.Slice(&b.memory[pageSize+innerLen], pageSize)
+	b.preguard = unsafe.Slice(&b.memory[0], pageSize)                  // #nosec G103 -- safe: sub-slicing contiguous mmap'd region
+	b.inner = unsafe.Slice(&b.memory[pageSize], innerLen)              // #nosec G103 -- safe: sub-slicing contiguous mmap'd region
+	b.postguard = unsafe.Slice(&b.memory[pageSize+innerLen], pageSize) // #nosec G103 -- safe: sub-slicing contiguous mmap'd region
 
 	// Construct slice reference for canary portion of inner page.
-	b.canary = unsafe.Slice(&b.memory[pageSize], len(b.inner)-len(b.data))
+	b.canary = unsafe.Slice(&b.memory[pageSize], len(b.inner)-len(b.data)) // #nosec G103 -- safe: sub-slicing contiguous mmap'd region
 
 	// Lock the pages that will hold sensitive data.
 	if err := memcall.Lock(b.inner); err != nil {

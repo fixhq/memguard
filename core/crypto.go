@@ -31,7 +31,7 @@ func Encrypt(plaintext, key []byte) ([]byte, error) {
 	}
 
 	// Get a reference to the key's underlying array without making a copy.
-	k := (*[32]byte)(unsafe.Pointer(&key[0]))
+	k := (*[32]byte)(unsafe.Pointer(&key[0])) // #nosec G103 -- safe: key length validated to 32 above
 
 	// Allocate space for and generate a nonce value.
 	var nonce [24]byte
@@ -67,7 +67,7 @@ func Decrypt(ciphertext, key []byte, output []byte) (int, error) {
 	}
 
 	// Get a reference to the key's underlying array without making a copy.
-	k := (*[32]byte)(unsafe.Pointer(&key[0]))
+	k := (*[32]byte)(unsafe.Pointer(&key[0])) // #nosec G103 -- safe: key length validated to 32 above
 
 	// Retrieve and store the nonce value.
 	var nonce [24]byte

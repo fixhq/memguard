@@ -26,9 +26,12 @@ func TestWipeBytes(t *testing.T) {
 
 func TestPurge(t *testing.T) {
 	key := NewEnclaveRandom(32)
+	if key == nil {
+		t.Fatal("NewEnclaveRandom returned nil")
+	}
 	buf, err := key.Open()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	Purge()
 	if buf.IsAlive() {
@@ -36,7 +39,11 @@ func TestPurge(t *testing.T) {
 	}
 	buf, err = key.Open()
 	if err != core.ErrDecryptionFailed {
-		t.Error(buf.Bytes(), err)
+		if buf != nil {
+			t.Error(buf.Bytes(), err)
+		} else {
+			t.Error("unexpected error:", err)
+		}
 	}
 	if buf != nil {
 		t.Error("buffer not nil:", buf)

@@ -28,7 +28,7 @@ func TestNewBuffer(t *testing.T) {
 	// Test normal execution.
 	b, err = NewBuffer(32)
 	if err != nil {
-		t.Error("expected nil err; got", err)
+		t.Fatal("expected nil err; got", err)
 	}
 	if !b.alive {
 		t.Error("did not expect destroyed buffer")
@@ -59,7 +59,7 @@ func TestLotsOfAllocs(t *testing.T) {
 	for i := 1; i <= 16385; i++ {
 		b, err := NewBuffer(i)
 		if err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 		if !b.alive || !b.mutable {
 			t.Error("invalid metadata")
@@ -98,7 +98,7 @@ func TestLotsOfAllocs(t *testing.T) {
 func TestData(t *testing.T) {
 	b, err := NewBuffer(32)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	datasegm := b.data
 	datameth := b.Data()
@@ -132,7 +132,7 @@ func TestData(t *testing.T) {
 func TestBufferState(t *testing.T) {
 	b, err := NewBuffer(32)
 	if err != nil {
-		t.Error("expected nil err; got", err)
+		t.Fatal("expected nil err; got", err)
 	}
 
 	if b.Mutable() != true {
@@ -178,7 +178,7 @@ func TestDestroy(t *testing.T) {
 	// Allocate a new buffer.
 	b, err := NewBuffer(32)
 	if err != nil {
-		t.Error("expected nil err; got", err)
+		t.Fatal("expected nil err; got", err)
 	}
 
 	// Destroy it.

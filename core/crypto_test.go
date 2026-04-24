@@ -6,13 +6,20 @@ import (
 	"testing"
 )
 
+func scramble(t *testing.T, buf []byte) {
+	t.Helper()
+	if err := Scramble(buf); err != nil {
+		t.Fatal("scramble failed:", err)
+	}
+}
+
 func TestCopy(t *testing.T) {
 	a := make([]byte, 8)
-	Scramble(a)
+	scramble(t, a)
 	b := make([]byte, 16)
-	Scramble(b)
+	scramble(t, b)
 	c := make([]byte, 32)
-	Scramble(c)
+	scramble(t, c)
 
 	// dst > src
 	Copy(b, a)
@@ -28,7 +35,7 @@ func TestCopy(t *testing.T) {
 
 	// dst = src
 	b2 := make([]byte, 16)
-	Scramble(b2)
+	scramble(t, b2)
 	Copy(b, b2)
 	if !bytes.Equal(b, b2) {
 		t.Error("incorrect copying")
@@ -37,9 +44,9 @@ func TestCopy(t *testing.T) {
 
 func TestMove(t *testing.T) {
 	a := make([]byte, 32)
-	Scramble(a)
+	scramble(t, a)
 	b := make([]byte, 32)
-	Scramble(b)
+	scramble(t, b)
 
 	Move(a, b)
 	if !bytes.Equal(b, make([]byte, 32)) {
@@ -49,9 +56,9 @@ func TestMove(t *testing.T) {
 
 func TestCompare(t *testing.T) {
 	a := make([]byte, 8)
-	Scramble(a)
+	scramble(t, a)
 	b := make([]byte, 16)
-	Scramble(b)
+	scramble(t, b)
 	c := make([]byte, 16)
 	copy(c, b)
 
@@ -75,12 +82,12 @@ func TestCompare(t *testing.T) {
 
 func TestScramble(t *testing.T) {
 	b := make([]byte, 32)
-	Scramble(b)
+	scramble(t, b)
 	if bytes.Equal(b, make([]byte, 32)) {
 		t.Error("buffer not scrambled")
 	}
 	c := make([]byte, 32)
-	Scramble(c)
+	scramble(t, c)
 	if bytes.Equal(b, make([]byte, 32)) {
 		t.Error("buffer not scrambled")
 	}
@@ -104,7 +111,7 @@ func TestHash(t *testing.T) {
 
 func TestWipe(t *testing.T) {
 	b := make([]byte, 32)
-	Scramble(b)
+	scramble(t, b)
 	Wipe(b)
 	for i := range b {
 		if b[i] != 0 {
@@ -116,9 +123,9 @@ func TestWipe(t *testing.T) {
 func TestEncryptDecrypt(t *testing.T) {
 	// Declare the plaintext and the key.
 	m := make([]byte, 64)
-	Scramble(m)
+	scramble(t, m)
 	k := make([]byte, 32)
-	Scramble(k)
+	scramble(t, k)
 
 	// Encrypt the message.
 	x, err := Encrypt(m, k)
@@ -168,7 +175,7 @@ func TestEncryptDecrypt(t *testing.T) {
 
 	// Generate an incorrect key.
 	ik := make([]byte, 32)
-	Scramble(ik)
+	scramble(t, ik)
 
 	// Attempt decryption with the incorrect key.
 	length, err = Decrypt(x, ik, dm)
@@ -209,7 +216,7 @@ func TestEncryptDecrypt(t *testing.T) {
 
 	// Generate a key of an invalid length.
 	ik = make([]byte, 16)
-	Scramble(ik)
+	scramble(t, ik)
 
 	// Attempt encryption with the invalid key.
 	ix, err := Encrypt(m, ik)

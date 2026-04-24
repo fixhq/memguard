@@ -31,7 +31,9 @@ func NewCoffer() *Coffer {
 	s.rand, _ = NewBuffer(32)
 
 	s.done = make(chan struct{})
-	s.Init()
+	if err := s.Init(); err != nil {
+		Panic(err)
+	}
 
 	go func(s *Coffer) {
 		ticker := time.NewTicker(interval)
@@ -86,7 +88,10 @@ func (s *Coffer) View() (*Buffer, error) {
 	if s.destroyed() {
 		return nil, ErrCofferExpired
 	}
-	b, _ := NewBuffer(32)
+	b, err := NewBuffer(32)
+	if err != nil {
+		return nil, err
+	}
 
 	// data = hash(right) XOR left
 	h := Hash(s.right.Data())

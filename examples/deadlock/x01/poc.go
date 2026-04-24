@@ -55,7 +55,7 @@ func openVerify(lock *memguard.Enclave, exp []byte) error {
 	}
 	defer lb.Destroy()
 	if !bytes.Equal(lb.Bytes(), exp) {
-		fmt.Println(lb.Bytes(), exp)
+		fmt.Println(string(lb.Bytes()), string(exp))
 		return errors.New("open verify fail")
 	}
 	return nil

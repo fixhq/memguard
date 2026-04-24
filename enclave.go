@@ -40,6 +40,9 @@ func NewEnclaveRandom(size int) *Enclave {
 Open decrypts an Enclave object and places its contents into an immutable LockedBuffer. An error will be returned if decryption failed.
 */
 func (e *Enclave) Open() (*LockedBuffer, error) {
+	if e == nil {
+		core.Panic("<memguard> attempted to open a nil Enclave")
+	}
 	b, err := core.Open(e.Enclave)
 	if err != nil {
 		if err != core.ErrDecryptionFailed {
@@ -55,5 +58,8 @@ func (e *Enclave) Open() (*LockedBuffer, error) {
 Size returns the number of bytes of data stored within an Enclave.
 */
 func (e *Enclave) Size() int {
+	if e == nil {
+		return 0
+	}
 	return core.EnclaveSize(e.Enclave)
 }

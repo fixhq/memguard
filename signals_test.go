@@ -18,11 +18,18 @@ func TestCatchSignal(t *testing.T) {
 		if err != nil {
 			SafePanic(err)
 		}
-		defer listener.Close()
+		defer func() {
+			if err := listener.Close(); err != nil {
+				t.Log("listener close:", err)
+			}
+		}()
 
 		// Spawn a handler to catch interrupts
 		CatchSignal(func(s os.Signal) {
-			listener.Close()
+			if err := listener.Close(); err != nil {
+				// Best-effort cleanup during signal handling.
+				_ = err
+			}
 		})
 
 		// Grab a handle on the running process
@@ -38,6 +45,9 @@ func TestCatchSignal(t *testing.T) {
 	}
 
 	// Construct the subprocess with its initial state
+	if len(os.Args) == 0 {
+		t.Fatal("os.Args is empty")
+	}
 	cmd := exec.Command(os.Args[0], "-test.run=TestCatchSignal")
 	cmd.Env = append(os.Environ(), "WITHIN_SUBPROCESS=1")
 
@@ -73,6 +83,9 @@ func TestCatchInterrupt(t *testing.T) {
 	}
 
 	// Construct the subprocess with its initial state
+	if len(os.Args) == 0 {
+		t.Fatal("os.Args is empty")
+	}
 	cmd := exec.Command(os.Args[0], "-test.run=TestCatchInterrupt")
 	cmd.Env = append(os.Environ(), "WITHIN_SUBPROCESS=1")
 

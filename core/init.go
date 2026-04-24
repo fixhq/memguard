@@ -5,5 +5,7 @@ import (
 )
 
 func init() {
-	memcall.DisableCoreDumps()
+	if err := memcall.DisableCoreDumps(); err != nil {
+		panic("memguard: failed to disable core dumps: " + err.Error())
+	}
 }

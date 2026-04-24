@@ -36,7 +36,7 @@ func ByteArray10() (*memguard.LockedBuffer, *[10]byte) {
 	b := memguard.NewBuffer(10)
 
 	// Return the LockedBuffer along with the cast pointer
-	return b, (*[10]byte)(unsafe.Pointer(&b.Bytes()[0]))
+	return b, (*[10]byte)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: cast over 10-byte mlock'd allocation
 }
 
 // Uint64Array4 allocates a 32 byte memory region and returns it represented as a sequence of four unsigned 64 bit integer values.
@@ -45,7 +45,7 @@ func Uint64Array4() (*memguard.LockedBuffer, *[4]uint64) {
 	b := memguard.NewBuffer(32)
 
 	// Return the LockedBuffer along with the cast pointer
-	return b, (*[4]uint64)(unsafe.Pointer(&b.Bytes()[0]))
+	return b, (*[4]uint64)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: cast over 32-byte mlock'd allocation
 }
 
 // SecureStruct allocates a region of memory the size of a struct type and returns a pointer to that memory represented as that struct type.
@@ -57,7 +57,7 @@ func SecureStruct() (*memguard.LockedBuffer, *Secure) {
 	b := memguard.NewBuffer(int(unsafe.Sizeof(*s)))
 
 	// Return the LockedBuffer along with the initialised struct
-	return b, (*Secure)(unsafe.Pointer(&b.Bytes()[0]))
+	return b, (*Secure)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: cast over sizeof(Secure) mlock'd allocation
 }
 
 // SecureStructArray allocates enough memory to hold an array of Secure structs and returns them.
@@ -69,7 +69,7 @@ func SecureStructArray() (*memguard.LockedBuffer, *[2]Secure) {
 	b := memguard.NewBuffer(int(unsafe.Sizeof(*s)) * 2)
 
 	// Cast a pointer to the start of the memory into a pointer of a fixed size array of Secure structs of length four
-	secureArray := (*[2]Secure)(unsafe.Pointer(&b.Bytes()[0]))
+	secureArray := (*[2]Secure)(unsafe.Pointer(&b.Bytes()[0])) // #nosec G103 -- safe: cast over 2*sizeof(Secure) mlock'd allocation
 
 	// Return the LockedBuffer along with the array
 	return b, secureArray
@@ -92,8 +92,8 @@ func SecureStructSlice(size int) (*memguard.LockedBuffer, []Secure) {
 		addr uintptr
 		len  int
 		cap  int
-	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size}
+	}{uintptr(unsafe.Pointer(&b.Bytes()[0])), size, size} // #nosec G103 -- safe: alive mlock'd memory, size validated
 
 	// Return the LockedBuffer along with the constructed slice
-	return b, *(*[]Secure)(unsafe.Pointer(&sl))
+	return b, *(*[]Secure)(unsafe.Pointer(&sl)) // #nosec G103 -- safe: slice header constructed above with valid bounds
 }
