@@ -31,11 +31,15 @@ func getKey() *Coffer {
 // ErrNullEnclave is returned when attempting to construct an enclave of size less than one.
 var ErrNullEnclave = errors.New("<memguard::core::ErrNullEnclave> enclave size must be greater than zero")
 
+// ErrEnclaveExpired is returned when attempting to open an enclave that has been wiped.
+var ErrEnclaveExpired = errors.New("<memguard::core::ErrEnclaveExpired> enclave has been wiped and can no longer be used")
+
 /*
 Enclave is a sealed and encrypted container for sensitive data.
 */
 type Enclave struct {
 	ciphertext []byte
+	mu         sync.RWMutex // Guards ciphertext against WipeEnclave.
 }
 
 /*
@@ -109,6 +113,15 @@ func Open(e *Enclave) (*Buffer, error) {
 		return nil, ErrNullEnclave
 	}
 
+	// Hold a read lock so the ciphertext cannot be wiped mid-decrypt.
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	// WipeEnclave leaves a nil ciphertext behind.
+	if e.ciphertext == nil {
+		return nil, ErrEnclaveExpired
+	}
+
 	// Allocate a secure Buffer to hold the decrypted data.
 	b, err := NewBuffer(len(e.ciphertext) - Overhead)
 	if err != nil {
@@ -138,11 +151,31 @@ func Open(e *Enclave) (*Buffer, error) {
 }
 
 /*
-EnclaveSize returns the number of bytes of plaintext data stored inside an Enclave.
+EnclaveSize returns the number of bytes of plaintext data stored inside an Enclave. A wiped Enclave has a size of zero.
 */
 func EnclaveSize(e *Enclave) int {
 	if e == nil {
 		return 0
 	}
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	if e.ciphertext == nil {
+		return 0
+	}
 	return len(e.ciphertext) - Overhead
+}
+
+/*
+WipeEnclave overwrites the ciphertext inside an Enclave with zeroes and releases it. The Enclave can no longer be opened; Open will return ErrEnclaveExpired.
+
+It is safe to call more than once and concurrently with Open. Buffers that were already returned by Open are not affected.
+*/
+func WipeEnclave(e *Enclave) {
+	if e == nil {
+		return
+	}
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	Wipe(e.ciphertext)
+	e.ciphertext = nil
 }

@@ -116,7 +116,52 @@ func TestOpen(t *testing.T) {
 }
 
 func TestEnclaveSize(t *testing.T) {
-	if EnclaveSize(&Enclave{make([]byte, 1234)}) != 1234-Overhead {
+	if EnclaveSize(&Enclave{ciphertext: make([]byte, 1234)}) != 1234-Overhead {
 		t.Error("invalid enclave size")
+	}
+	if EnclaveSize(nil) != 0 {
+		t.Error("nil enclave should have zero size")
+	}
+}
+
+func TestWipeEnclave(t *testing.T) {
+	e, err := NewEnclave([]byte("yellow submarine"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Keep a reference to the backing array so we can inspect it after the wipe.
+	ciphertext := e.ciphertext
+	if bytes.Equal(ciphertext, make([]byte, len(ciphertext))) {
+		t.Fatal("ciphertext is zero before wipe")
+	}
+
+	WipeEnclave(e)
+
+	// Check that the ciphertext was zeroed in place and released.
+	if !bytes.Equal(ciphertext, make([]byte, len(ciphertext))) {
+		t.Error("ciphertext was not wiped")
+	}
+	if e.ciphertext != nil {
+		t.Error("ciphertext was not released")
+	}
+	if EnclaveSize(e) != 0 {
+		t.Error("expected zero size; got", EnclaveSize(e))
+	}
+
+	// Opening a wiped enclave must fail cleanly.
+	buf, err := Open(e)
+	if err != ErrEnclaveExpired {
+		t.Error("expected ErrEnclaveExpired; got", err)
+	}
+	if buf != nil {
+		t.Error("expected nil buffer in error case")
+	}
+
+	// Wiping again, or wiping nil, is a no-op.
+	WipeEnclave(e)
+	WipeEnclave(nil)
+	if _, err := Open(e); err != ErrEnclaveExpired {
+		t.Error("expected ErrEnclaveExpired after second wipe; got", err)
 	}
 }

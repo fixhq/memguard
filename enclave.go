@@ -37,7 +37,7 @@ func NewEnclaveRandom(size int) *Enclave {
 }
 
 /*
-Open decrypts an Enclave object and places its contents into an immutable LockedBuffer. An error will be returned if decryption failed.
+Open decrypts an Enclave object and places its contents into an immutable LockedBuffer. An error will be returned if decryption failed or if the Enclave has been wiped.
 */
 func (e *Enclave) Open() (*LockedBuffer, error) {
 	if e == nil {
@@ -45,7 +45,7 @@ func (e *Enclave) Open() (*LockedBuffer, error) {
 	}
 	b, err := core.Open(e.Enclave)
 	if err != nil {
-		if err != core.ErrDecryptionFailed {
+		if err != core.ErrDecryptionFailed && err != core.ErrEnclaveExpired {
 			core.Panic(err)
 		}
 		return nil, err
@@ -55,11 +55,23 @@ func (e *Enclave) Open() (*LockedBuffer, error) {
 }
 
 /*
-Size returns the number of bytes of data stored within an Enclave.
+Size returns the number of bytes of data stored within an Enclave. A wiped Enclave has a size of zero.
 */
 func (e *Enclave) Size() int {
 	if e == nil {
 		return 0
 	}
 	return core.EnclaveSize(e.Enclave)
+}
+
+/*
+Wipe overwrites the encrypted contents of an Enclave with zeroes. The Enclave cannot be opened afterwards; Open will return core.ErrEnclaveExpired.
+
+It is safe to call on a nil Enclave, more than once, and concurrently with Open. LockedBuffers that were already returned by Open are not affected and should be destroyed separately.
+*/
+func (e *Enclave) Wipe() {
+	if e == nil {
+		return
+	}
+	core.WipeEnclave(e.Enclave)
 }
